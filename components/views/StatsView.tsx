@@ -122,7 +122,7 @@ export function StatsView({ data }: StatsViewProps) {
               });
               return (
                 <li key={sub.id}>
-                  <Card>
+                  <Card className="neu-card-accepted ring-1 ring-rose-300/60">
                     <p className="text-xs text-faint">{date}</p>
                     <h3 className="mt-0.5 text-sm font-semibold text-foreground">
                       {program?.title ?? "不明な番組"}

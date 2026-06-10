@@ -137,6 +137,11 @@ a {
     -2px -2px 6px var(--shadow-light);
 }
 
+/* 採用メールのカード: ほんのり赤みがかった面で目立たせる */
+.neu-card-accepted {
+  background: linear-gradient(145deg, #f9e9ee, #f1dbe2);
+}
+
 /* ロゴ・見出し用グラデーション文字 */
 .text-logo {
   background: linear-gradient(135deg, var(--accent) 20%, #9b6cf0 80%);

@@ -2,11 +2,21 @@ import { parseHash } from "@/lib/hashNav";
 
 const NAV_VIEWS = ["programs", "history", "stats", "profiles"];
 
+let lastAppliedHash: string | null = null;
+
 /** React に依存せず、モバイルで画面パネルを切り替える */
 export function applyViewPanels(): void {
   if (typeof document === "undefined") return;
 
   const route = parseHash(window.location.hash);
+
+  // 画面遷移時はスクロールを先頭へ（パネル切替なので位置が持ち越されてしまう）
+  // データ更新等による再適用（ハッシュ不変）ではスクロールしない
+  const currentHash = window.location.hash;
+  if (lastAppliedHash !== null && lastAppliedHash !== currentHash) {
+    window.scrollTo(0, 0);
+  }
+  lastAppliedHash = currentHash;
 
   document.querySelectorAll<HTMLElement>("[data-panel]").forEach((el) => {
     const panel = el.getAttribute("data-panel");

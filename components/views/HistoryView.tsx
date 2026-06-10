@@ -3,8 +3,9 @@
 import { Pencil, Sparkles, Trash2, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { MailDetailModal } from "@/components/ui/MailDetailModal";
 import { paths, toHash } from "@/lib/hashNav";
-import type { AppData } from "@/lib/types";
+import type { AppData, Submission } from "@/lib/types";
 
 interface HistoryViewProps {
   data: AppData;
@@ -27,6 +28,7 @@ export function HistoryView({
   onDelete,
 }: HistoryViewProps) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [viewing, setViewing] = useState<Submission | null>(null);
 
   const sorted = [...data.submissions]
     .filter((s) => {
@@ -97,7 +99,13 @@ export function HistoryView({
 
             return (
               <li key={sub.id}>
-                <Card>
+                <Card
+                  className={
+                    sub.accepted
+                      ? "neu-card-accepted ring-1 ring-rose-300/60"
+                      : ""
+                  }
+                >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -124,14 +132,23 @@ export function HistoryView({
                           {sub.status === "draft" ? "下書き" : "送信済"}
                         </span>
                         {sub.accepted && (
-                          <span className="neu-inset rounded-full px-3 py-1.5 text-xs font-bold text-success">
+                          <span className="neu-inset rounded-full px-3 py-1.5 text-xs font-bold text-rose-500">
                             採用
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <p className="line-clamp-3 text-sm text-muted">{sub.body}</p>
+                    <button
+                      type="button"
+                      onClick={() => setViewing(sub)}
+                      className="w-full cursor-pointer text-left touch-manipulation active:opacity-60"
+                      title="タップで全文表示"
+                    >
+                      <p className="line-clamp-3 whitespace-pre-wrap text-sm text-muted">
+                        {sub.body}
+                      </p>
+                    </button>
 
                     <div className="flex gap-2.5">
                       {sub.status === "sent" && !sub.accepted && (
@@ -183,6 +200,14 @@ export function HistoryView({
             );
           })}
         </ul>
+      )}
+
+      {viewing && (
+        <MailDetailModal
+          submission={viewing}
+          {...resolveMeta(viewing.cornerId)}
+          onClose={() => setViewing(null)}
+        />
       )}
     </div>
   );
