@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import type { Profile } from "@/lib/types";
 
 interface ProfileFormProps {
@@ -21,7 +22,7 @@ export function ProfileForm({ profile, onSave, onCancel }: ProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4">
+    <form onSubmit={handleSubmit} className="space-y-5 p-4">
       <Input
         label="ラジオネーム"
         value={form.name}
@@ -29,30 +30,20 @@ export function ProfileForm({ profile, onSave, onCancel }: ProfileFormProps) {
         placeholder="例: 東京のタカシ"
         required
       />
-      <Input
-        label="本名"
-        value={form.realName}
-        onChange={(e) => setForm({ ...form, realName: e.target.value })}
-      />
-      <Input
-        label="郵便番号"
-        value={form.postalCode}
-        onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
-        placeholder="100-0001"
-      />
-      <Input
-        label="住所"
-        value={form.address}
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-      />
-      <Input
-        label="電話番号"
-        type="tel"
-        value={form.tel}
-        onChange={(e) => setForm({ ...form, tel: e.target.value })}
-      />
+      <div className="space-y-2">
+        <Textarea
+          label="署名（メール末尾に自動追加）"
+          value={form.signature}
+          onChange={(e) => setForm({ ...form, signature: e.target.value })}
+          placeholder={"例:\n山田 隆\n〒100-0001 東京都千代田区…\n090-XXXX-XXXX"}
+          rows={5}
+        />
+        <p className="px-1 text-xs text-faint">
+          本名・住所・電話番号など、番組に伝えたい情報を自由な形式で書けます。
+        </p>
+      </div>
 
-      <div className="flex gap-2 pt-2">
+      <div className="flex gap-3 pt-2">
         <Button type="submit" fullWidth>
           保存
         </Button>

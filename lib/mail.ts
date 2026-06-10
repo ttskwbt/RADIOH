@@ -1,17 +1,11 @@
 import type { Corner, Profile, Program } from "./types";
 
-export function buildMailBody(
-  profile: Profile,
-  body: string,
-): string {
-  return `ラジオネーム：${profile.name}
-
-${body}
-
----
-${profile.realName}
-${profile.postalCode} ${profile.address}
-${profile.tel}`;
+export function buildMailBody(profile: Profile, body: string): string {
+  const parts = [`ラジオネーム：${profile.name}`, "", body];
+  if (profile.signature.trim()) {
+    parts.push("", "---", profile.signature);
+  }
+  return parts.join("\n");
 }
 
 export function buildMailtoUrl(

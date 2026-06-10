@@ -11,7 +11,7 @@ import {
   openMailer,
 } from "@/lib/mail";
 import type { AppData, Corner, Program, Profile, Submission } from "@/lib/types";
-import { countChars, estimateLines } from "@/lib/utils";
+import { countChars } from "@/lib/utils";
 
 interface EditorViewProps {
   program: Program;
@@ -42,8 +42,6 @@ export function EditorView({
     | undefined;
 
   const charCount = countChars(body);
-  const lineEstimate = estimateLines(body);
-  const charsPerLine = 28;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -52,7 +50,7 @@ export function EditorView({
 
   const handleMailto = () => {
     if (!profile) {
-      showToast("プロフィールを選択してください");
+      showToast("プロフィールを登録してください");
       return;
     }
     const url = buildMailtoUrl(program, corner, profile, body);
@@ -63,7 +61,7 @@ export function EditorView({
 
   const handleCopy = async () => {
     if (!profile) {
-      showToast("プロフィールを選択してください");
+      showToast("プロフィールを登録してください");
       return;
     }
     const text = buildClipboardText(program, corner, profile, body);
@@ -77,23 +75,25 @@ export function EditorView({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 pb-8">
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-4 space-y-2 text-sm">
+    <div className="flex flex-col gap-5 p-4 pb-8">
+      <div className="neu-raised space-y-2.5 p-4 text-sm">
         <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">番組</span>
-          <span className="font-medium text-zinc-100 text-right">{program.title}</span>
+          <span className="text-muted">番組</span>
+          <span className="text-right font-semibold text-foreground">
+            {program.title}
+          </span>
         </div>
         <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">宛先</span>
-          <span className="text-violet-400 text-right break-all">{program.email}</span>
+          <span className="text-muted">宛先</span>
+          <span className="break-all text-right text-accent">{program.email}</span>
         </div>
         <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">件名</span>
-          <span className="text-zinc-200 text-right">{corner.subjectLine}</span>
+          <span className="text-muted">件名</span>
+          <span className="text-right text-foreground">{corner.subjectLine}</span>
         </div>
         <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">コーナー</span>
-          <span className="text-zinc-200 text-right">{corner.name}</span>
+          <span className="text-muted">コーナー</span>
+          <span className="text-right text-foreground">{corner.name}</span>
         </div>
       </div>
 
@@ -112,51 +112,27 @@ export function EditorView({
       )}
 
       <div className="space-y-2">
-        <label className="block">
-          <span className="text-xs font-medium text-zinc-400">本文</span>
-          <div className="relative mt-1.5">
-            <div
-              className="pointer-events-none absolute inset-0 rounded-xl opacity-[0.07]"
-              style={{
-                backgroundImage: `repeating-linear-gradient(
-                  transparent,
-                  transparent calc(1.25rem * 2 - 1px),
-                  rgb(139 92 246) calc(1.25rem * 2 - 1px),
-                  rgb(139 92 246) calc(1.25rem * 2)
-                )`,
-              }}
-              aria-hidden
-            />
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={10}
-              placeholder="ここに本文を入力…"
-              className="relative w-full resize-y rounded-xl border border-zinc-700/80 bg-zinc-900/90 px-3.5 py-3 text-sm leading-8 text-zinc-100 placeholder:text-zinc-600 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
-              style={{ lineHeight: "2rem" }}
-            />
-          </div>
+        <label className="block space-y-2">
+          <span className="px-1 text-xs font-semibold text-muted">本文</span>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            rows={10}
+            placeholder="ここに本文を入力…"
+            className="neu-inset w-full resize-y border-none px-4 py-3 text-sm leading-7 text-foreground placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
+          />
         </label>
 
-        <div className="flex flex-wrap gap-3 text-xs text-zinc-500">
-          <span>
-            <strong className="text-zinc-300">{charCount}</strong> 文字
-          </span>
-          <span>
-            約 <strong className="text-zinc-300">{lineEstimate}</strong> 行
-            <span className="text-zinc-600">（1行{charsPerLine}文字目安）</span>
-          </span>
-        </div>
-
-        <p className="text-[11px] text-zinc-600">
-          ハガキは1行25〜30文字が目安。横線ガイドを参考にしてください。
+        <p className="px-1 text-xs text-muted">
+          <strong className="text-foreground">{charCount}</strong> 文字 ·
+          冒頭にラジオネーム、末尾に署名が自動で付きます
         </p>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Button fullWidth onClick={handleMailto} type="button">
           <Mail className="h-4 w-4" />
-          メーラーを起動
+          メーラーを起動して送信
         </Button>
         <Button fullWidth variant="secondary" onClick={handleCopy} type="button">
           <ClipboardCopy className="h-4 w-4" />
@@ -170,8 +146,8 @@ export function EditorView({
       </div>
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm text-zinc-100 shadow-xl">
-          <Check className="h-4 w-4 text-emerald-400" />
+        <div className="neu-raised fixed bottom-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full px-5 py-2.5 text-sm text-foreground">
+          <Check className="h-4 w-4 text-success" />
           {toast}
         </div>
       )}

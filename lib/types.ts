@@ -2,17 +2,18 @@ export type SubmissionStatus = "draft" | "sent" | "accepted" | "rejected";
 
 export interface Profile {
   id: string;
+  /** ラジオネーム（メール冒頭に自動追加） */
   name: string;
-  realName: string;
-  postalCode: string;
-  address: string;
-  tel: string;
+  /** メール末尾に付ける個人情報（住所など、フリーフォーマット） */
+  signature: string;
 }
 
 export interface Program {
   id: string;
   title: string;
   email: string;
+  /** サムネイル画像（リサイズ済み Data URL）または null */
+  thumbnail: string | null;
   profileId: string;
 }
 
@@ -39,11 +40,19 @@ export interface AppData {
   submissions: Submission[];
 }
 
+export const EMPTY_DATA: AppData = {
+  profiles: [],
+  programs: [],
+  corners: [],
+  submissions: [],
+};
+
 export type View =
   | "programs"
   | "program-detail"
   | "editor"
   | "history"
+  | "stats"
   | "profiles"
   | "program-form"
   | "corner-form"

@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RADIOH
 
-## Getting Started
+ラジオリスナー向けのメール投稿アシスタント PWA。
+番組・コーナーを登録しておくと、ワンタップで件名・ラジオネーム・署名入りのメールを作成してメーラーを起動できます。
 
-First, run the development server:
+## 機能
+
+- **番組登録**: 番組名・宛先メールアドレス・サムネイル
+- **コーナー登録**: 番組ごとにコーナー名・メール件名・定型文
+- **メール投稿**: 番組 → コーナー → 本文入力 → メーラー起動（mailto:）
+- **プロフィール**: ラジオネーム（冒頭に自動追加）と署名（末尾に自動追加、フリーフォーマット）
+- **採用実績**: 送信済みメールに「採用された！」を記録。採用率・番組別実績・採用メール一覧
+- **PWA**: ホーム画面に追加してアプリとして利用可能
+
+## 開発
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 で起動します。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## データ保存
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Supabase 未設定時**: 端末内（localStorage）にのみ保存
+- **Supabase 設定時**: ログイン制になり、クラウドに保存（複数端末で同期）
 
-## Learn More
+### Supabase のセットアップ
 
-To learn more about Next.js, take a look at the following resources:
+1. https://supabase.com でプロジェクトを作成（無料）
+2. SQL Editor で `supabase/schema.sql` を実行
+3. `.env.example` を `.env.local` にコピーし、Settings → API の URL と anon key を記入
+4. （任意）Authentication → Sign In / Up → 「Confirm email」をオフにすると確認メールなしで登録できます
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## デプロイ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel 推奨。環境変数 `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` を設定してデプロイしてください。
+PWA としてインストールするには HTTPS が必要です（Vercel なら自動）。

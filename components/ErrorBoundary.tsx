@@ -24,15 +24,13 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-zinc-950 p-6 text-center text-zinc-100">
+        <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background p-6 text-center text-foreground">
           <p className="text-lg font-semibold">読み込みエラー</p>
-          <p className="text-sm text-zinc-400">
-            ページを再読み込みしてください。
-          </p>
+          <p className="text-sm text-muted">ページを再読み込みしてください。</p>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-medium touch-manipulation"
+            className="neu-accent px-6 py-3 text-sm font-medium touch-manipulation"
           >
             再読み込み
           </button>

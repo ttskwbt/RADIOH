@@ -1,5 +1,7 @@
 import { parseHash } from "@/lib/hashNav";
 
+const NAV_VIEWS = ["programs", "history", "stats", "profiles"];
+
 /** React に依存せず、モバイルで画面パネルを切り替える */
 export function applyViewPanels(): void {
   if (typeof document === "undefined") return;
@@ -24,7 +26,7 @@ export function applyViewPanels(): void {
     el.hidden = route.view !== "editor" || key !== expected;
   });
 
-  const showNav = ["programs", "history", "profiles"].includes(route.view);
+  const showNav = NAV_VIEWS.includes(route.view);
   document.querySelectorAll<HTMLElement>("[data-panel-nav-bar]").forEach((el) => {
     el.hidden = !showNav;
   });
@@ -32,9 +34,9 @@ export function applyViewPanels(): void {
   document.querySelectorAll<HTMLElement>("[data-nav-tab]").forEach((el) => {
     const tab = el.getAttribute("data-nav-tab");
     const active = tab === route.view;
-    el.classList.toggle("bg-violet-600/20", active);
-    el.classList.toggle("text-violet-400", active);
-    el.classList.toggle("text-zinc-500", !active);
+    el.classList.toggle("neu-inset", active);
+    el.classList.toggle("text-accent", active);
+    el.classList.toggle("text-muted", !active);
   });
 
   const headerTitle = document.querySelector<HTMLElement>("[data-header-title]");
@@ -43,6 +45,9 @@ export function applyViewPanels(): void {
   );
   if (headerTitle) {
     headerTitle.textContent = getHeaderTitle(route);
+    const isLogo = route.view === "programs";
+    headerTitle.classList.toggle("text-logo", isLogo);
+    headerTitle.classList.toggle("text-foreground", !isLogo);
   }
   if (headerSubtitle) {
     const sub = getHeaderSubtitle(route);
@@ -61,7 +66,7 @@ export function applyViewPanels(): void {
 function getHeaderTitle(route: ReturnType<typeof parseHash>): string {
   switch (route.view) {
     case "programs":
-      return "ハガキ職人";
+      return "RADIOH";
     case "program-detail":
       return (
         document
@@ -73,7 +78,9 @@ function getHeaderTitle(route: ReturnType<typeof parseHash>): string {
     case "editor":
       return "メール作成";
     case "history":
-      return "履歴・ネタ帳";
+      return "送信履歴";
+    case "stats":
+      return "採用実績";
     case "profiles":
       return "プロフィール";
     case "program-form":
@@ -83,20 +90,22 @@ function getHeaderTitle(route: ReturnType<typeof parseHash>): string {
     case "profile-form":
       return "プロフィール";
     default:
-      return "ハガキ職人";
+      return "RADIOH";
   }
 }
 
 function getHeaderSubtitle(route: ReturnType<typeof parseHash>): string {
   switch (route.view) {
     case "programs":
-      return "ラジオ投稿アシスタント";
+      return "ラジオメール投稿アシスタント";
     case "program-detail":
       return "コーナーを選択";
     case "history":
-      return "過去の投稿";
+      return "送ったメール・下書き";
+    case "stats":
+      return "採用されたメール";
     case "profiles":
-      return "ラジオネーム・連絡先";
+      return "ラジオネーム・署名";
     default:
       return "";
   }

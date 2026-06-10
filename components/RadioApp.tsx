@@ -6,20 +6,25 @@ import { CornerForm } from "@/components/forms/CornerForm";
 import { ProfileForm } from "@/components/forms/ProfileForm";
 import { ProgramForm } from "@/components/forms/ProgramForm";
 import { Header } from "@/components/Header";
+import { AuthView } from "@/components/views/AuthView";
 import { EditorView } from "@/components/views/EditorView";
 import { HistoryView } from "@/components/views/HistoryView";
 import { ProfilesView } from "@/components/views/ProfilesView";
 import { ProgramDetailView } from "@/components/views/ProgramDetailView";
 import { ProgramsView } from "@/components/views/ProgramsView";
+import { StatsView } from "@/components/views/StatsView";
+import { useAuth } from "@/hooks/useAuth";
 import { useHashNav } from "@/hooks/useHashNav";
 import { useNavClick } from "@/hooks/useNavClick";
 import { useRadioStore } from "@/hooks/useRadioStore";
 import { applyViewPanels } from "@/lib/panelSync";
 import { paths } from "@/lib/hashNav";
+import { isCloudEnabled } from "@/lib/supabase";
 import type { Corner, Profile, Program, Submission } from "@/lib/types";
 
 export function RadioApp() {
-  const store = useRadioStore();
+  const { ready, session, authLoading, signOut } = useAuth();
+  const store = useRadioStore(ready);
   const { data } = store;
   const { route, navigate, hash } = useHashNav();
   useNavClick();
@@ -121,14 +126,31 @@ export function RadioApp() {
     [route.cornerId, route.programId, editingSubmission, store],
   );
 
+  // クラウドモード: 未ログインならログイン画面
+  if (isCloudEnabled && authLoading) {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-lg items-center justify-center bg-background">
+        <p className="text-logo animate-pulse text-2xl">RADIOH</p>
+      </div>
+    );
+  }
+  if (isCloudEnabled && !session) {
+    return <AuthView />;
+  }
+
   const headerConfig = (): {
     title: string;
     subtitle?: string;
     backHref?: string;
+    isLogo?: boolean;
   } => {
     switch (route.view) {
       case "programs":
-        return { title: "ハガキ職人", subtitle: "ラジオ投稿アシスタント" };
+        return {
+          title: "RADIOH",
+          subtitle: "ラジオメール投稿アシスタント",
+          isLogo: true,
+        };
       case "program-detail":
         return {
           title: selectedProgram?.title ?? "番組",
@@ -144,9 +166,11 @@ export function RadioApp() {
             : paths.programs(),
         };
       case "history":
-        return { title: "履歴・ネタ帳", subtitle: "過去の投稿" };
+        return { title: "送信履歴", subtitle: "送ったメール・下書き" };
+      case "stats":
+        return { title: "採用実績", subtitle: "採用されたメール" };
       case "profiles":
-        return { title: "プロフィール", subtitle: "ラジオネーム・連絡先" };
+        return { title: "プロフィール", subtitle: "ラジオネーム・署名" };
       case "program-form":
         return {
           title: draftProgram?.title ? "番組を編集" : "番組を追加",
@@ -168,18 +192,20 @@ export function RadioApp() {
           backHref: paths.profiles(),
         };
       default:
-        return { title: "ハガキ職人" };
+        return { title: "RADIOH", isLogo: true };
     }
   };
 
-  const { title, subtitle, backHref } = headerConfig();
-  const showBottomNav = ["programs", "history", "profiles"].includes(route.view);
+  const { title, subtitle, backHref, isLogo } = headerConfig();
+  const showBottomNav = ["programs", "history", "stats", "profiles"].includes(
+    route.view,
+  );
 
   return (
-    <div className="relative mx-auto min-h-dvh max-w-lg bg-zinc-950 text-zinc-100">
-      <Header title={title} subtitle={subtitle} backHref={backHref} />
+    <div className="relative mx-auto min-h-dvh max-w-lg bg-background text-foreground">
+      <Header title={title} subtitle={subtitle} backHref={backHref} isLogo={isLogo} />
 
-      <main className="pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+      <main className="pb-[calc(6rem+env(safe-area-inset-bottom))]">
         <section data-panel="programs">
           <ProgramsView data={data} />
         </section>
@@ -210,8 +236,9 @@ export function RadioApp() {
                       route.submissionId &&
                       route.programId === program.id &&
                       route.cornerId === corner.id
-                        ? data.submissions.find((s) => s.id === route.submissionId)
-                            ?.body
+                        ? data.submissions.find(
+                            (s) => s.id === route.submissionId,
+                          )?.body
                         : corner.template
                     }
                     submissionId={
@@ -236,11 +263,16 @@ export function RadioApp() {
           />
         </section>
 
+        <section data-panel="stats" hidden>
+          <StatsView data={data} />
+        </section>
+
         <section data-panel="profiles" hidden>
           <ProfilesView
             data={data}
             onDelete={store.deleteProfile}
-            onResetSeed={store.resetToSeed}
+            accountEmail={session?.user.email ?? undefined}
+            onSignOut={isCloudEnabled ? signOut : undefined}
           />
         </section>
 
@@ -306,6 +338,12 @@ export function RadioApp() {
           )}
         </section>
       </main>
+
+      {store.syncError && (
+        <div className="neu-raised fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full px-5 py-2.5 text-sm text-danger">
+          {store.syncError}
+        </div>
+      )}
 
       <div data-panel-nav-bar hidden={!showBottomNav}>
         <BottomNav active={route.view} />

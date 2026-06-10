@@ -5,19 +5,20 @@ interface HeaderProps {
   title: string;
   subtitle?: string;
   backHref?: string;
+  isLogo?: boolean;
   action?: React.ReactNode;
 }
 
-export function Header({ title, subtitle, backHref, action }: HeaderProps) {
+export function Header({ title, subtitle, backHref, isLogo, action }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-800/80 bg-zinc-950 px-4 py-3">
+    <header className="sticky top-0 z-20 bg-background/90 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <a
           href={backHref ? toHash(backHref) : undefined}
           data-nav={backHref ?? undefined}
           data-header-back
           hidden={!backHref}
-          className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-zinc-900 text-zinc-300 no-underline transition hover:bg-zinc-800 active:scale-95 touch-manipulation"
+          className="neu-btn flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl text-muted no-underline touch-manipulation"
           aria-label="戻る"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -25,13 +26,16 @@ export function Header({ title, subtitle, backHref, action }: HeaderProps) {
         <div className="min-w-0 flex-1">
           <h1
             data-header-title
-            className="truncate text-lg font-semibold text-zinc-50"
+            className={[
+              "truncate text-xl font-bold",
+              isLogo ? "text-logo" : "text-foreground",
+            ].join(" ")}
           >
             {title}
           </h1>
           <p
             data-header-subtitle
-            className="truncate text-xs text-zinc-500"
+            className="truncate text-xs text-muted"
             hidden={!subtitle}
           >
             {subtitle ?? ""}

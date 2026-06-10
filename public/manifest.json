@@ -1,11 +1,25 @@
 {
-  "name": "ハガキ職人",
-  "short_name": "ハガキ職人",
-  "description": "ラジオ番組へのメール投稿を効率化",
+  "name": "RADIOH",
+  "short_name": "RADIOH",
+  "description": "ラジオ番組へのメール投稿を効率化するアシスタント",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#7c3aed",
+  "background_color": "#e4e9f2",
+  "theme_color": "#e4e9f2",
   "orientation": "portrait",
-  "lang": "ja"
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

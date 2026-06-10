@@ -7,8 +7,7 @@ interface CardProps {
 }
 
 export function Card({ children, onClick, className = "" }: CardProps) {
-  const base =
-    "w-full rounded-2xl border border-zinc-800/80 bg-zinc-900/60 p-4 text-left transition";
+  const base = "neu-raised w-full p-4 text-left";
 
   if (onClick) {
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -24,7 +23,7 @@ export function Card({ children, onClick, className = "" }: CardProps) {
         tabIndex={0}
         onClick={onClick}
         onKeyDown={handleKeyDown}
-        className={`${base} cursor-pointer hover:border-violet-600/50 hover:bg-zinc-900 active:scale-[0.99] touch-manipulation ${className}`}
+        className={`${base} neu-btn cursor-pointer touch-manipulation ${className}`}
       >
         {children}
       </div>

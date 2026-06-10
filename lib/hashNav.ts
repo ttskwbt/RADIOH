@@ -61,6 +61,7 @@ export function getHashSnapshot(): string {
 export const paths = {
   programs: () => "programs",
   history: () => "history",
+  stats: () => "stats",
   profiles: () => "profiles",
   program: (programId: string) => `program/${programId}`,
   editor: (programId: string, cornerId: string, submissionId?: string) =>
@@ -94,6 +95,8 @@ export function parseHash(hash: string): AppRoute {
       return { ...empty, view: "programs" };
     case "history":
       return { ...empty, view: "history" };
+    case "stats":
+      return { ...empty, view: "stats" };
     case "profiles":
       return { ...empty, view: "profiles" };
     case "program":

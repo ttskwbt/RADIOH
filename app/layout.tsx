@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SwRegister } from "@/components/SwRegister";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,13 +14,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ハガキ職人 | ラジオ投稿アシスタント",
+  title: "RADIOH | ラジオメール投稿アシスタント",
   description:
-    "ラジオ番組へのメール投稿を効率化。データは端末内にのみ保存されます。",
+    "ラジオ番組へのメール投稿を効率化。番組・コーナーを登録してワンタップでメール作成。",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "ハガキ職人",
+    title: "RADIOH",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 
@@ -28,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#09090b",
+  themeColor: "#e4e9f2",
 };
 
 export default function RootLayout({
@@ -44,7 +48,8 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="min-h-full bg-zinc-950 font-sans text-zinc-100 antialiased">
+      <body className="min-h-full bg-background font-sans text-foreground antialiased">
+        <SwRegister />
         {children}
       </body>
     </html>

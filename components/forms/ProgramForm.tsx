@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { ImagePlus, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { ProgramThumb } from "@/components/ui/ProgramThumb";
 import { Select } from "@/components/ui/Select";
+import { fileToThumbnail } from "@/lib/image";
 import type { AppData, Program } from "@/lib/types";
 
 interface ProgramFormProps {
@@ -22,6 +25,7 @@ export function ProgramForm({
   onCancel,
 }: ProgramFormProps) {
   const [form, setForm] = useState(program);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +33,54 @@ export function ProgramForm({
     onSave(form);
   };
 
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const thumbnail = await fileToThumbnail(file);
+      setForm((prev) => ({ ...prev, thumbnail }));
+    } catch {
+      alert("画像の読み込みに失敗しました");
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4">
+    <form onSubmit={handleSubmit} className="space-y-5 p-4">
+      <div className="space-y-2">
+        <span className="px-1 text-xs font-semibold text-muted">サムネイル</span>
+        <div className="flex items-center gap-4">
+          <ProgramThumb title={form.title} thumbnail={form.thumbnail} size="lg" />
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="neu-btn flex cursor-pointer items-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-accent touch-manipulation"
+            >
+              <ImagePlus className="h-3.5 w-3.5" />
+              画像を選択
+            </button>
+            {form.thumbnail && (
+              <button
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, thumbnail: null }))}
+                className="neu-btn flex cursor-pointer items-center px-3 py-2.5 text-muted touch-manipulation"
+                aria-label="サムネイルを削除"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFile}
+            className="hidden"
+          />
+        </div>
+      </div>
+
       <Input
         label="番組名"
         value={form.title}
@@ -46,19 +96,21 @@ export function ProgramForm({
         placeholder="ann@example-radio.jp"
         required
       />
-      <Select
-        label="デフォルトプロフィール"
-        value={form.profileId}
-        onChange={(e) => setForm({ ...form, profileId: e.target.value })}
-      >
-        {data.profiles.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name || p.realName}
-          </option>
-        ))}
-      </Select>
+      {data.profiles.length > 0 && (
+        <Select
+          label="デフォルトプロフィール"
+          value={form.profileId}
+          onChange={(e) => setForm({ ...form, profileId: e.target.value })}
+        >
+          {data.profiles.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name || "（名前未設定）"}
+            </option>
+          ))}
+        </Select>
+      )}
 
-      <div className="flex gap-2 pt-2">
+      <div className="flex gap-3 pt-2">
         <Button type="submit" fullWidth>
           保存
         </Button>
@@ -73,7 +125,9 @@ export function ProgramForm({
           variant="danger"
           fullWidth
           onClick={() => {
-            if (confirm("この番組と紐づくコーナーも削除されます。よろしいですか？")) {
+            if (
+              confirm("この番組と紐づくコーナーも削除されます。よろしいですか？")
+            ) {
               onDelete(form.id);
             }
           }}
