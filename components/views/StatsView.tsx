@@ -7,14 +7,9 @@ interface StatsViewProps {
   data: AppData;
 }
 
-/** 実際に送ったメール（下書きを除く） */
-function isSent(status: string): boolean {
-  return status === "sent" || status === "accepted" || status === "rejected";
-}
-
 export function StatsView({ data }: StatsViewProps) {
-  const sent = data.submissions.filter((s) => isSent(s.status));
-  const accepted = data.submissions.filter((s) => s.status === "accepted");
+  const sent = data.submissions.filter((s) => s.status === "sent");
+  const accepted = sent.filter((s) => s.accepted);
   const rate = sent.length > 0 ? Math.round((accepted.length / sent.length) * 100) : 0;
 
   const cornerToProgram = new Map(
@@ -26,7 +21,7 @@ export function StatsView({ data }: StatsViewProps) {
       const subs = sent.filter(
         (s) => cornerToProgram.get(s.cornerId) === program.id,
       );
-      const acc = subs.filter((s) => s.status === "accepted");
+      const acc = subs.filter((s) => s.accepted);
       return { program, sentCount: subs.length, acceptedCount: acc.length };
     })
     .filter((row) => row.sentCount > 0)

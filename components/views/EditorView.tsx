@@ -1,9 +1,11 @@
 "use client";
 
 import { Check, ClipboardCopy, Mail, Save } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { useHashNav } from "@/hooks/useHashNav";
+import { navigateTo, paths } from "@/lib/hashNav";
 import {
   buildClipboardText,
   buildMailtoUrl,
@@ -37,6 +39,22 @@ export function EditorView({
   const [body, setBody] = useState(initialBody ?? corner.template);
   const [toast, setToast] = useState<string | null>(null);
 
+  // この画面はパネルとして常駐するため、開き直すたびに本文を初期化する
+  // （前回送った本文が残らないように）
+  const { route } = useHashNav();
+  const isActive =
+    route.view === "editor" &&
+    route.programId === program.id &&
+    route.cornerId === corner.id;
+  const activeKey = isActive ? (route.submissionId ?? "new") : null;
+
+  useEffect(() => {
+    if (activeKey === null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- パネル再表示時の本文リセット
+    setBody(initialBody ?? corner.template);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- activeKey の変化時のみ初期化
+  }, [activeKey]);
+
   const profile = data.profiles.find((p) => p.id === profileId) as
     | Profile
     | undefined;
@@ -57,6 +75,8 @@ export function EditorView({
     openMailer(url);
     onSave(body, "sent");
     showToast("メーラーを起動しました");
+    // 送ったら次のメール準備へ: 少し待ってコーナー一覧に戻る
+    setTimeout(() => navigateTo(paths.program(program.id)), 400);
   };
 
   const handleCopy = async () => {

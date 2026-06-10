@@ -39,7 +39,8 @@ create table public.submissions (
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
   corner_id uuid not null references public.corners (id) on delete cascade,
   body text not null default '',
-  status text not null default 'draft' check (status in ('draft', 'sent', 'accepted', 'rejected')),
+  status text not null default 'draft' check (status in ('draft', 'sent')),
+  accepted boolean not null default false,
   created_at timestamptz not null default now()
 );
 

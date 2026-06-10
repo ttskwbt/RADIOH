@@ -1,19 +1,18 @@
 "use client";
 
-import { Pencil, Sparkles, Trash2 } from "lucide-react";
+import { Pencil, Sparkles, Trash2, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { paths, toHash } from "@/lib/hashNav";
-import type { AppData, SubmissionStatus } from "@/lib/types";
-import { SUBMISSION_STATUS_LABELS } from "@/lib/types";
+import type { AppData } from "@/lib/types";
 
 interface HistoryViewProps {
   data: AppData;
-  onStatusChange: (id: string, status: SubmissionStatus) => void;
+  onToggleAccepted: (id: string, accepted: boolean) => void;
   onDelete: (id: string) => void;
 }
 
-type Filter = "all" | SubmissionStatus;
+type Filter = "all" | "sent" | "accepted" | "draft";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "すべて" },
@@ -22,25 +21,26 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "draft", label: "下書き" },
 ];
 
-const STATUS_CYCLE: SubmissionStatus[] = [
-  "draft",
-  "sent",
-  "accepted",
-  "rejected",
-];
-
-const STATUS_COLORS: Record<SubmissionStatus, string> = {
-  draft: "text-muted",
-  sent: "text-accent",
-  accepted: "text-success",
-  rejected: "text-danger",
-};
-
-export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps) {
+export function HistoryView({
+  data,
+  onToggleAccepted,
+  onDelete,
+}: HistoryViewProps) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const sorted = [...data.submissions]
-    .filter((s) => filter === "all" || s.status === filter)
+    .filter((s) => {
+      switch (filter) {
+        case "sent":
+          return s.status === "sent"; // 採用済みも送信済みに含む
+        case "accepted":
+          return s.accepted;
+        case "draft":
+          return s.status === "draft";
+        default:
+          return true;
+      }
+    })
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -52,11 +52,6 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
       ? data.programs.find((p) => p.id === corner.programId)
       : undefined;
     return { corner, program };
-  };
-
-  const cycleStatus = (current: SubmissionStatus): SubmissionStatus => {
-    const idx = STATUS_CYCLE.indexOf(current);
-    return STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
   };
 
   return (
@@ -94,7 +89,7 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
               minute: "2-digit",
             });
 
-            // 編集できるのは下書きのみ（送信済・採用は記録として保持）
+            // 編集できるのは下書きのみ（送信済は記録として保持）
             const editHref =
               sub.status === "draft" && corner && program
                 ? paths.editor(program.id, corner.id, sub.id)
@@ -117,32 +112,46 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
                           )}
                         </h2>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onStatusChange(sub.id, cycleStatus(sub.status))
-                        }
-                        className={[
-                          "neu-inset shrink-0 cursor-pointer rounded-full px-3 py-1.5 text-xs font-bold touch-manipulation",
-                          STATUS_COLORS[sub.status],
-                        ].join(" ")}
-                        title="タップでステータス変更"
-                      >
-                        {SUBMISSION_STATUS_LABELS[sub.status]}
-                      </button>
+                      <div className="flex shrink-0 gap-1.5">
+                        <span
+                          className={[
+                            "neu-inset rounded-full px-3 py-1.5 text-xs font-bold",
+                            sub.status === "draft"
+                              ? "text-muted"
+                              : "text-accent",
+                          ].join(" ")}
+                        >
+                          {sub.status === "draft" ? "下書き" : "送信済"}
+                        </span>
+                        {sub.accepted && (
+                          <span className="neu-inset rounded-full px-3 py-1.5 text-xs font-bold text-success">
+                            採用
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <p className="line-clamp-3 text-sm text-muted">{sub.body}</p>
 
                     <div className="flex gap-2.5">
-                      {sub.status === "sent" && (
+                      {sub.status === "sent" && !sub.accepted && (
                         <button
                           type="button"
-                          onClick={() => onStatusChange(sub.id, "accepted")}
+                          onClick={() => onToggleAccepted(sub.id, true)}
                           className="neu-btn flex flex-1 cursor-pointer items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-success touch-manipulation"
                         >
                           <Sparkles className="h-3.5 w-3.5" />
                           採用された！
+                        </button>
+                      )}
+                      {sub.status === "sent" && sub.accepted && (
+                        <button
+                          type="button"
+                          onClick={() => onToggleAccepted(sub.id, false)}
+                          className="neu-btn flex flex-1 cursor-pointer items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-muted touch-manipulation"
+                        >
+                          <Undo2 className="h-3.5 w-3.5" />
+                          採用を取り消す
                         </button>
                       )}
                       {editHref && (

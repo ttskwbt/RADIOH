@@ -265,7 +265,7 @@ export function RadioApp() {
         <section data-panel="history" hidden>
           <HistoryView
             data={data}
-            onStatusChange={store.updateSubmissionStatus}
+            onToggleAccepted={store.setSubmissionAccepted}
             onDelete={store.deleteSubmission}
           />
         </section>

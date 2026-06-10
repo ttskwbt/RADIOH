@@ -1,4 +1,4 @@
-export type SubmissionStatus = "draft" | "sent" | "accepted" | "rejected";
+export type SubmissionStatus = "draft" | "sent";
 
 export interface Profile {
   id: string;
@@ -37,6 +37,8 @@ export interface Submission {
   cornerId: string;
   body: string;
   status: SubmissionStatus;
+  /** 採用されたか（送信済みのメールにのみ意味を持つ） */
+  accepted: boolean;
   createdAt: string;
 }
 
@@ -68,6 +70,4 @@ export type View =
 export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
   draft: "下書き",
   sent: "送信済",
-  accepted: "採用",
-  rejected: "ボツ",
 };

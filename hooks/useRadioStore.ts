@@ -37,12 +37,18 @@ interface LegacyProfile {
   signature?: string;
 }
 
-type LegacyData = Omit<AppData, "profiles" | "programs"> & {
+type LegacyData = Omit<AppData, "profiles" | "programs" | "submissions"> & {
   profiles: LegacyProfile[];
   programs: Array<
     Omit<Program, "thumbnail" | "days"> & {
       thumbnail?: string | null;
       days?: number[];
+    }
+  >;
+  submissions: Array<
+    Omit<Submission, "status" | "accepted"> & {
+      status: string;
+      accepted?: boolean;
     }
   >;
 };
@@ -66,7 +72,12 @@ function migrateLegacy(raw: string): AppData {
       days: p.days ?? [],
     })),
     corners: parsed.corners ?? [],
-    submissions: parsed.submissions ?? [],
+    // 旧4値ステータス（accepted/rejected）を 送信済+採用フラグ に変換
+    submissions: (parsed.submissions ?? []).map((s) => ({
+      ...s,
+      status: s.status === "draft" ? "draft" : "sent",
+      accepted: s.accepted ?? s.status === "accepted",
+    })),
   };
 }
 
@@ -261,11 +272,11 @@ export function useRadioStore(ready: boolean) {
     [setDataAndSave, sync],
   );
 
-  const updateSubmissionStatus = useCallback(
-    (id: string, status: SubmissionStatus) => {
+  const setSubmissionAccepted = useCallback(
+    (id: string, accepted: boolean) => {
       const target = data.submissions.find((s) => s.id === id);
       if (!target) return;
-      upsertSubmission({ ...target, status });
+      upsertSubmission({ ...target, accepted });
     },
     [data.submissions, upsertSubmission],
   );
@@ -313,6 +324,7 @@ export function useRadioStore(ready: boolean) {
     cornerId,
     body,
     status,
+    accepted: false,
     createdAt: new Date().toISOString(),
   });
 
@@ -327,7 +339,7 @@ export function useRadioStore(ready: boolean) {
     upsertCorner,
     deleteCorner,
     upsertSubmission,
-    updateSubmissionStatus,
+    setSubmissionAccepted,
     deleteSubmission,
     createEmptyProfile,
     createEmptyProgram,

@@ -39,6 +39,7 @@ interface SubmissionRow {
   corner_id: string;
   body: string;
   status: SubmissionStatus;
+  accepted: boolean | null;
   created_at: string;
 }
 
@@ -57,7 +58,7 @@ export async function fetchAllData(): Promise<AppData> {
       .order("created_at"),
     supabase
       .from("submissions")
-      .select("id,corner_id,body,status,created_at")
+      .select("id,corner_id,body,status,accepted,created_at")
       .order("created_at", { ascending: false }),
   ]);
 
@@ -91,6 +92,7 @@ export async function fetchAllData(): Promise<AppData> {
       cornerId: r.corner_id,
       body: r.body,
       status: r.status,
+      accepted: r.accepted ?? false,
       createdAt: r.created_at,
     })),
   };
@@ -172,6 +174,7 @@ export async function cloudUpsertSubmission(s: Submission): Promise<void> {
     corner_id: s.cornerId,
     body: s.body,
     status: s.status,
+    accepted: s.accepted,
     created_at: s.createdAt,
   });
   if (error) throw error;
