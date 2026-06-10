@@ -17,6 +17,7 @@ create table public.programs (
   title text not null,
   email text not null,
   thumbnail text,
+  days smallint[] not null default '{}',
   profile_id uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now()
 );

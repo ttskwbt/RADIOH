@@ -14,8 +14,15 @@ export interface Program {
   email: string;
   /** サムネイル画像（リサイズ済み Data URL）または null */
   thumbnail: string | null;
+  /** 放送曜日（0=日〜6=土、複数可。帯番組対応） */
+  days: number[];
   profileId: string;
 }
+
+export const DAY_LABELS_JA = ["日", "月", "火", "水", "木", "金", "土"];
+export const DAY_LABELS_EN = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+/** 表示順: 月曜はじまり */
+export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export interface Corner {
   id: string;

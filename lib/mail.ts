@@ -1,7 +1,7 @@
 import type { Corner, Profile, Program } from "./types";
 
 export function buildMailBody(profile: Profile, body: string): string {
-  const parts = [`ラジオネーム：${profile.name}`, "", body];
+  const parts = [`ラジオネーム：${profile.name}`, "", "", body];
   if (profile.signature.trim()) {
     parts.push("", "---", profile.signature);
   }

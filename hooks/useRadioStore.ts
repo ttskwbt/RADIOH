@@ -39,7 +39,12 @@ interface LegacyProfile {
 
 type LegacyData = Omit<AppData, "profiles" | "programs"> & {
   profiles: LegacyProfile[];
-  programs: Array<Omit<Program, "thumbnail"> & { thumbnail?: string | null }>;
+  programs: Array<
+    Omit<Program, "thumbnail" | "days"> & {
+      thumbnail?: string | null;
+      days?: number[];
+    }
+  >;
 };
 
 /** 旧「ハガキ職人」データ（住所等が個別フィールド）を署名フリーフォーマットへ変換 */
@@ -58,6 +63,7 @@ function migrateLegacy(raw: string): AppData {
     programs: (parsed.programs ?? []).map((p) => ({
       ...p,
       thumbnail: p.thumbnail ?? null,
+      days: p.days ?? [],
     })),
     corners: parsed.corners ?? [],
     submissions: parsed.submissions ?? [],
@@ -68,7 +74,8 @@ function loadLocal(): AppData {
   if (typeof window === "undefined") return EMPTY_DATA;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as AppData;
+    // days 追加前に保存されたデータも読めるよう migrateLegacy で正規化
+    if (raw) return migrateLegacy(raw);
     const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
     if (legacy) return migrateLegacy(legacy);
     return EMPTY_DATA;
@@ -285,6 +292,7 @@ export function useRadioStore(ready: boolean) {
     title: "",
     email: "",
     thumbnail: null,
+    days: [],
     profileId,
   });
 

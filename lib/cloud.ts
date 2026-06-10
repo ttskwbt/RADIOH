@@ -22,6 +22,7 @@ interface ProgramRow {
   title: string;
   email: string;
   thumbnail: string | null;
+  days: number[] | null;
   profile_id: string;
 }
 
@@ -48,7 +49,7 @@ export async function fetchAllData(): Promise<AppData> {
     supabase.from("profiles").select("id,name,signature").order("created_at"),
     supabase
       .from("programs")
-      .select("id,title,email,thumbnail,profile_id")
+      .select("id,title,email,thumbnail,days,profile_id")
       .order("created_at"),
     supabase
       .from("corners")
@@ -75,6 +76,7 @@ export async function fetchAllData(): Promise<AppData> {
       title: r.title,
       email: r.email,
       thumbnail: r.thumbnail,
+      days: r.days ?? [],
       profileId: r.profile_id,
     })),
     corners: ((corners.data ?? []) as CornerRow[]).map((r) => ({
@@ -128,6 +130,7 @@ export async function cloudUpsertProgram(p: Program): Promise<void> {
     title: p.title,
     email: p.email,
     thumbnail: p.thumbnail,
+    days: p.days,
     profile_id: p.profileId || null,
   });
   if (error) throw error;

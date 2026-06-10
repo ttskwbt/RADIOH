@@ -8,6 +8,7 @@ import { ProgramThumb } from "@/components/ui/ProgramThumb";
 import { Select } from "@/components/ui/Select";
 import { fileToThumbnail } from "@/lib/image";
 import type { AppData, Program } from "@/lib/types";
+import { DAY_LABELS_JA, WEEK_ORDER } from "@/lib/types";
 
 interface ProgramFormProps {
   data: AppData;
@@ -96,6 +97,38 @@ export function ProgramForm({
         placeholder="ann@example-radio.jp"
         required
       />
+      <div className="space-y-2">
+        <span className="px-1 text-xs font-semibold text-muted">
+          放送曜日（複数選択可）
+        </span>
+        <div className="flex gap-1.5">
+          {WEEK_ORDER.map((day) => {
+            const selected = form.days.includes(day);
+            return (
+              <button
+                key={day}
+                type="button"
+                aria-pressed={selected}
+                onClick={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    days: selected
+                      ? prev.days.filter((d) => d !== day)
+                      : [...prev.days, day],
+                  }))
+                }
+                className={[
+                  "flex h-11 flex-1 cursor-pointer items-center justify-center rounded-xl text-sm font-bold touch-manipulation transition-colors",
+                  selected ? "neu-inset text-accent" : "neu-btn text-muted",
+                ].join(" ")}
+              >
+                {DAY_LABELS_JA[day]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {data.profiles.length > 0 && (
         <Select
           label="デフォルトプロフィール"

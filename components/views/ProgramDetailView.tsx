@@ -3,6 +3,7 @@ import { ListRow } from "@/components/ui/ListRow";
 import { ProgramThumb } from "@/components/ui/ProgramThumb";
 import { paths, toHash } from "@/lib/hashNav";
 import type { AppData, Program } from "@/lib/types";
+import { DAY_LABELS_JA, WEEK_ORDER } from "@/lib/types";
 
 interface ProgramDetailViewProps {
   program: Program;
@@ -19,6 +20,14 @@ export function ProgramDetailView({ program, data }: ProgramDetailViewProps) {
         <div className="min-w-0">
           <h2 className="truncate font-bold text-foreground">{program.title}</h2>
           <p className="mt-1 truncate text-xs text-muted">{program.email}</p>
+          {program.days.length > 0 && (
+            <p className="mt-1 text-xs font-semibold text-accent">
+              {WEEK_ORDER.filter((d) => program.days.includes(d))
+                .map((d) => DAY_LABELS_JA[d])
+                .join("・")}
+              曜日
+            </p>
+          )}
         </div>
       </div>
 

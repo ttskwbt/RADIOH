@@ -94,8 +94,9 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
               minute: "2-digit",
             });
 
+            // 編集できるのは下書きのみ（送信済・採用は記録として保持）
             const editHref =
-              corner && program
+              sub.status === "draft" && corner && program
                 ? paths.editor(program.id, corner.id, sub.id)
                 : null;
 
@@ -144,7 +145,7 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
                           採用された！
                         </button>
                       )}
-                      {editHref ? (
+                      {editHref && (
                         <a
                           href={toHash(editHref)}
                           data-nav={editHref}
@@ -153,10 +154,6 @@ export function HistoryView({ data, onStatusChange, onDelete }: HistoryViewProps
                           <Pencil className="h-3.5 w-3.5" />
                           編集
                         </a>
-                      ) : (
-                        <span className="flex flex-1 items-center justify-center py-2.5 text-xs text-faint">
-                          編集不可
-                        </span>
                       )}
                       <button
                         type="button"

@@ -64,12 +64,15 @@ export function RadioApp() {
     const key = route.formId ?? "new";
     if (draftProgramKey.current === key) return;
 
-    draftProgramKey.current = key;
     if (key === "new") {
+      draftProgramKey.current = key;
       const profileId = data.profiles[0]?.id ?? "";
       setDraftProgram(store.createEmptyProgram(profileId));
     } else {
-      setDraftProgram(data.programs.find((p) => p.id === key) ?? null);
+      const found = data.programs.find((p) => p.id === key) ?? null;
+      // データ読み込み前に見つからなかった場合はキーを確定せず、ロード後に再試行
+      draftProgramKey.current = found ? key : null;
+      setDraftProgram(found);
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [route.view, route.formId, data.programs, data.profiles, store]);
@@ -84,11 +87,13 @@ export function RadioApp() {
     const key = `${route.programId}:${route.formId ?? "new"}`;
     if (draftCornerKey.current === key) return;
 
-    draftCornerKey.current = key;
     if (route.formId === "new" || !route.formId) {
+      draftCornerKey.current = key;
       setDraftCorner(store.createEmptyCorner(route.programId));
     } else {
-      setDraftCorner(data.corners.find((c) => c.id === route.formId) ?? null);
+      const found = data.corners.find((c) => c.id === route.formId) ?? null;
+      draftCornerKey.current = found ? key : null;
+      setDraftCorner(found);
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [route.view, route.programId, route.formId, data.corners, store]);
@@ -103,11 +108,13 @@ export function RadioApp() {
     const key = route.formId ?? "new";
     if (draftProfileKey.current === key) return;
 
-    draftProfileKey.current = key;
     if (key === "new") {
+      draftProfileKey.current = key;
       setDraftProfile(store.createEmptyProfile());
     } else {
-      setDraftProfile(data.profiles.find((p) => p.id === key) ?? null);
+      const found = data.profiles.find((p) => p.id === key) ?? null;
+      draftProfileKey.current = found ? key : null;
+      setDraftProfile(found);
     }
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [route.view, route.formId, data.profiles, store]);
