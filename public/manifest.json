@@ -1,0 +1,11 @@
+{
+  "name": "ハガキ職人",
+  "short_name": "ハガキ職人",
+  "description": "ラジオ番組へのメール投稿を効率化",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "lang": "ja"
+}

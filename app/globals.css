@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  /* iOS Safari: ページ全体でスクロール（flex内overflowを避ける） */
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* モバイル入力時のズーム防止（16px未満だとiOSがズームする） */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+button,
+[role="button"],
+a {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
